@@ -13,10 +13,20 @@ export default {
     const url = new URL(request.url);
     const nimUrl = "https://integrate.api.nvidia.com" + url.pathname;
 
+    let body = request.body;
+    if (request.method === "POST") {
+      const json = await request.json();
+      json.enable_thinking = true;
+      body = JSON.stringify(json);
+    }
+
+    const headers = new Headers(request.headers);
+    headers.set("Content-Type", "application/json");
+
     const response = await fetch(nimUrl, {
       method: request.method,
-      headers: request.headers,
-      body: request.body,
+      headers: headers,
+      body: body,
     });
 
     const newResponse = new Response(response.body, response);
