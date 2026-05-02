@@ -16,7 +16,7 @@ export default {
     let body = request.body;
     if (request.method === "POST") {
       const json = await request.json();
-      json.chat_template_kwargs = {"enable_thinking": true, "clear_thinking": false};
+      json.chat_template_kwargs = {"thinking": true};
       body = JSON.stringify(json);
     }
 
