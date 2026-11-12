@@ -11,22 +11,16 @@ export default {
     }
 
     const url = new URL(request.url);
-    const nimUrl = "https://integrate.api.nvidia.com" + url.pathname;
-
-    let body = request.body;
-    if (request.method === "POST") {
-      const json = await request.json();
-      json.chat_template_kwargs = {"thinking": true};
-      body = JSON.stringify(json);
-    }
+    const targetUrl = "https://gpurouter.io" + url.pathname;
 
     const headers = new Headers(request.headers);
     headers.set("Content-Type", "application/json");
+    headers.delete("Host");
 
-    const response = await fetch(nimUrl, {
+    const response = await fetch(targetUrl, {
       method: request.method,
       headers: headers,
-      body: body,
+      body: request.body,
     });
 
     const newResponse = new Response(response.body, response);
