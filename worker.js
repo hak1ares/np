@@ -16,17 +16,11 @@ export default {
     let body = request.body;
     if (request.method === "POST") {
       const json = await request.json();
-
-      // Добавляем включение размышлений в чистый исходный формат
-      json.include_reasoning = true;
-      json.reasoning = { exclude: false };
-
       body = JSON.stringify(json);
     }
 
     const headers = new Headers(request.headers);
     headers.set("Content-Type", "application/json");
-    headers.delete("content-length"); // чтобы Cloudflare не рубил запрос по размеру
 
     const response = await fetch(nimUrl, {
       method: request.method,
