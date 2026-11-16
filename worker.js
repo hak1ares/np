@@ -11,36 +11,24 @@ export default {
     }
 
     const url = new URL(request.url);
-    const target = "https://gpurouter.io" + url.pathname;
+    const nimUrl = "https://gpurouter.io" + url.pathname;
 
     let body = request.body;
     if (request.method === "POST") {
       const json = await request.json();
 
-      // 1. Убираем 0, если Джанитор прислал 0 (никаких 16000 не ставим)
-      if (!json.max_tokens) {
-        delete json.max_tokens;
-      }
-
-      // 2. Включаем размышления строго по стандарту GPURouter (БЕЗ тупого условия if)
+      // Добавляем включение размышлений в чистый исходный формат
+      json.include_reasoning = true;
       json.reasoning = { exclude: false };
-
-      // 3. Вырезаем прошлые размышления из истории, чтобы 2-е сообщение не падало в ошибку
-      if (Array.isArray(json.messages)) {
-        json.messages.forEach((m) => {
-          if (m.role === "assistant" && typeof m.content === "string") {
-            m.content = m.content.replace(/<think>[\s\S]*?<\/think>\s*/gi, "").trim();
-          }
-        });
-      }
 
       body = JSON.stringify(json);
     }
 
     const headers = new Headers(request.headers);
     headers.set("Content-Type", "application/json");
+    headers.delete("content-length"); // чтобы Cloudflare не рубил запрос по размеру
 
-    const response = await fetch(target, {
+    const response = await fetch(nimUrl, {
       method: request.method,
       headers: headers,
       body: body,
