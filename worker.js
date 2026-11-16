@@ -13,11 +13,14 @@ export default {
     const url = new URL(request.url);
     const target = "https://gpurouter.io" + url.pathname;
 
-    let body = request.body;
-    if (request.method === "POST") {
-      const json = await request.json();
-      json.reasoning = { enabled: true, exclude: false };
-      body = JSON.stringify(json);
+    let bodyText = await request.text();
+
+    if (request.method === "POST" && bodyText) {
+      try {
+        const json = JSON.parse(bodyText);
+        json.reasoning = { enabled: true, exclude: false };
+        bodyText = JSON.stringify(json);
+      } catch (e) {}
     }
 
     const headers = new Headers(request.headers);
@@ -26,7 +29,7 @@ export default {
     const response = await fetch(target, {
       method: request.method,
       headers: headers,
-      body: body,
+      body: bodyText || null,
     });
 
     const newResponse = new Response(response.body, response);
