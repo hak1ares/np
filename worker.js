@@ -16,11 +16,6 @@ export default {
     let body = request.body;
     if (request.method === "POST") {
       const json = await request.json();
-
-      // Принудительно передаём стандартный параметр GPU Router для выбора маршрута с мыслями
-      json.reasoning_effort = json.reasoning_effort || json.reasoning?.effort || "high";
-      delete json.reasoning;
-
       body = JSON.stringify(json);
     }
 
