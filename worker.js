@@ -17,16 +17,21 @@ export default {
     if (request.method === "POST") {
       const json = await request.json();
 
-      // лимит, если Janitor не прислал или прислал 0
-      if (!(json.max_tokens > 0)) json.max_tokens = 16000;
+      // 1. Убираем 0, если Джанитор прислал 0 (никаких 16000 не ставим)
+      if (!json.max_tokens) {
+        delete json.max_tokens;
+      }
 
-      // показывать размышления
-      if (json.reasoning || json.reasoning_effort) {
-        json.reasoning = { ...(json.reasoning || {}), exclude: false };
-        if (json.reasoning_effort && !json.reasoning.effort) {
-          json.reasoning.effort = json.reasoning_effort;
-        }
-        delete json.reasoning_effort;
+      // 2. Включаем размышления строго по стандарту GPURouter (БЕЗ тупого условия if)
+      json.reasoning = { exclude: false };
+
+      // 3. Вырезаем прошлые размышления из истории, чтобы 2-е сообщение не падало в ошибку
+      if (Array.isArray(json.messages)) {
+        json.messages.forEach((m) => {
+          if (m.role === "assistant" && typeof m.content === "string") {
+            m.content = m.content.replace(/<think>[\s\S]*?<\/think>\s*/gi, "").trim();
+          }
+        });
       }
 
       body = JSON.stringify(json);
