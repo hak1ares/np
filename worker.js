@@ -16,6 +16,7 @@ export default {
     let body = request.body;
     if (request.method === "POST") {
       const json = await request.json();
+      json.reasoning = { enabled: true, exclude: false };
       body = JSON.stringify(json);
     }
 
