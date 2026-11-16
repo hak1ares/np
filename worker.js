@@ -11,25 +11,22 @@ export default {
     }
 
     const url = new URL(request.url);
-    const target = "https://gpurouter.io" + url.pathname;
+    const nimUrl = "https://gpurouter.io" + url.pathname;
 
-    let bodyText = await request.text();
-
-    if (request.method === "POST" && bodyText) {
-      try {
-        const json = JSON.parse(bodyText);
-        json.reasoning = { enabled: true, exclude: false };
-        bodyText = JSON.stringify(json);
-      } catch (e) {}
+    let body = request.body;
+    if (request.method === "POST") {
+      const json = await request.json();
+      json.reasoning = { enabled: true, exclude: false };
+      body = JSON.stringify(json);
     }
 
     const headers = new Headers(request.headers);
     headers.set("Content-Type", "application/json");
 
-    const response = await fetch(target, {
+    const response = await fetch(nimUrl, {
       method: request.method,
       headers: headers,
-      body: bodyText || null,
+      body: body,
     });
 
     const newResponse = new Response(response.body, response);
