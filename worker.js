@@ -17,14 +17,14 @@ export default {
     if (request.method === "POST") {
       const json = await request.json();
 
-      // показывать размышления
-      if (json.reasoning || json.reasoning_effort) {
-        json.reasoning = { ...(json.reasoning || {}), exclude: false };
-        if (json.reasoning_effort && !json.reasoning.effort) {
-          json.reasoning.effort = json.reasoning_effort;
-        }
-        delete json.reasoning_effort;
-      }
+      // Принудительно включаем размышления в обоих форматах для совместимости со всеми провайдерами
+      const effort = json.reasoning?.effort || json.reasoning_effort || "medium";
+      json.reasoning_effort = effort;
+      json.reasoning = {
+        ...(typeof json.reasoning === "object" ? json.reasoning : {}),
+        effort: effort,
+        exclude: false,
+      };
 
       body = JSON.stringify(json);
     }
