@@ -17,13 +17,14 @@ export default {
     if (request.method === "POST") {
       const json = await request.json();
 
-      const effort = json.reasoning?.effort || json.reasoning_effort || "high";
-      json.reasoning_effort = effort;
-      json.reasoning = {
-        ...(typeof json.reasoning === "object" ? json.reasoning : {}),
-        effort: effort,
-        exclude: false,
-      };
+      // показывать размышления
+      if (json.reasoning || json.reasoning_effort) {
+        json.reasoning = { ...(json.reasoning || {}), exclude: false };
+        if (json.reasoning_effort && !json.reasoning.effort) {
+          json.reasoning.effort = json.reasoning_effort;
+        }
+        delete json.reasoning_effort;
+      }
 
       body = JSON.stringify(json);
     }
